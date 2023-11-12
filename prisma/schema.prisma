@@ -14,10 +14,46 @@ enum Role {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
+  id        String     @id @default(uuid())
   email     String  @unique
   password String
   firstName String?
   lastName  String?
   role Role @default(USER)
+}
+
+model Category {
+  id String @id @default(uuid())
+  name String @unique
+  description String?
+  image String?
+  isActive Boolean @default(true)
+  metaTitle String?
+  metaDescription String?
+  keywords String?
+  slug String?
+  canonicalUrl String?
+  robotsTag String?
+  products CategoriesOnProducts[]
+}
+
+model Product {
+  id String @id @default(uuid())
+  name String
+  description String?
+  image String?
+  price Decimal @default(0.00)
+  quantityStock Int @default(0)
+  isActive Boolean @default(true)
+  categories CategoriesOnProducts[]
+}
+
+model CategoriesOnProducts {
+  product    Product    @relation(fields: [productId], references: [id])
+  productId  String // relation scalar field (used in the `@relation` attribute above)
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String // relation scalar field (used in the `@relation` attribute above)
+  assignedAt DateTime @default(now())
+
+  @@id([productId, categoryId])
 }
