@@ -66,4 +66,4 @@ export default async function middleware(req: NextRequest) {
 
 }
 
-export const config = { matcher: ['/dashboard', '/dashbard/:path*', '/cart/:path'] }
+export const config = { matcher: ['/dashboard', '/dashbard/:path*', '/dashboard/categories', '/cart/:path'] }
