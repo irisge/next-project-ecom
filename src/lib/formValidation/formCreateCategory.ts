@@ -16,7 +16,7 @@ export const profileFormSchema = z.object({
     .max(30, {
       message: 'Name must not be longer than 30 characters.',
     }),
-  image: z.custom<File>().refine((file) => ALLOWED_FILE_TYPES.includes(file.type)),
+  image: z.custom<File>().refine((file) => ALLOWED_FILE_TYPES.includes(file?.type)),
   description: z.string().max(500).min(4, {
     message: 'Description must be at least 4 characters.',
   }),
