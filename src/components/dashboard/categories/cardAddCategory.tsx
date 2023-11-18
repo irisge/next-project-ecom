@@ -1,3 +1,6 @@
+import React from 'react';
+import { Plus } from 'lucide-react';
+
 import {
   Card,
   CardContent,
@@ -5,8 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Plus } from 'lucide-react';
-import React from 'react';
 
 function CardAddCategory() {
   return (

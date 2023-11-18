@@ -1,5 +1,5 @@
-import s3Client from '@/services/s3';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
+import s3Client from '@/services/s3';
 
 export default async function uploadFileToS3(
   file: Buffer,
@@ -21,7 +21,7 @@ export default async function uploadFileToS3(
 
   try {
     const res = await s3Client.send(command);
-    return res; // Returning the S3 response for additional information if needed
+    return res; 
   } catch (e) {
     throw new Error('Error uploading file to S3');
   }

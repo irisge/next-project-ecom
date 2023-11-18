@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Pencil } from 'lucide-react';
 import Link from 'next/link';
 
-export default async function redirectButton() {
+export default function redirectButton() {
   return (
     <Link href={'/dashboard/categories/create'}>
       <Button>

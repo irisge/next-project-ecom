@@ -1,11 +1,9 @@
 'use client';
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
+import React, { SetStateAction } from 'react';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import Icon from '@/components/iconComponent';
+import { NavigationMenuItem } from '@radix-ui/react-navigation-menu';
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
@@ -13,30 +11,31 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
     title: string;
     icon?: any;
   }[];
+  setFormStep: React.Dispatch<SetStateAction<string>>;
 }
 
-export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
-  const pathname = usePathname();
-
+export function SidebarNav({
+  className,
+  items,
+  setFormStep,
+  ...props
+}: SidebarNavProps) {
   return (
     <nav
       className={cn(
-        'flex w-full flex-wrap justify-between lg:flex-col lg:space-x-0 lg:space-y-1',
+        'sm:justify-between md:flex md:flex-col	lg:space-x-0 lg:space-y-1 grid w-full 2xs:grid-cols-side xs:auto-cols-auto xs:grid-flow-col',
         className
       )}
       {...props}
     >
       {items.map((item) => (
-        <Link
+        <NavigationMenuItem
           key={item.href}
-          href={item.href}
           className={cn(
             buttonVariants({ variant: 'ghost' }),
-            pathname === item.href
-              ? 'bg-muted hover:bg-muted'
-              : 'hover:bg-transparent hover:underline',
-            'm-0 flex w-min justify-start space-x-2 place-self-start p-0 hover:bg-muted'
+            'p-auto m-0 justify-start space-x-2 place-self-start bg-transparent text-secondary-foreground hover:bg-muted'
           )}
+          onClick={() => setFormStep(item.title)}
         >
           {item.icon ? (
             <>
@@ -46,7 +45,7 @@ export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
           ) : (
             <h2>{item.title}</h2>
           )}
-        </Link>
+        </NavigationMenuItem>
       ))}
     </nav>
   );

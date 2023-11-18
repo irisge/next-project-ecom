@@ -1,7 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+
+import {
+  MainCreateCategoryFormValues,
+  mainCreateCategoryFormSchema,
+} from '@/lib/formValidation/formCreateCategory';
+
 import { toast } from '@/components/ui/use-toast';
 import {
   Form,
@@ -15,16 +23,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import {
-  ProfileFormValues,
-  profileFormSchema,
-} from '@/lib/formValidation/formCreateCategory';
-import { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { ToastAction } from '@/components/ui/toast';
 
-// This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
+const defaultValues: Partial<MainCreateCategoryFormValues> = {
   name: '',
   image: undefined,
   description: '',
@@ -32,42 +34,37 @@ const defaultValues: Partial<ProfileFormValues> = {
 };
 
 export function CategoryForm() {
+  const router = useRouter();
   // eslint-disable-next-line no-unused-vars
   const [_isLoading, setIsLoading] = useState<boolean>(false);
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
+  const form = useForm<MainCreateCategoryFormValues>({
+    resolver: zodResolver(mainCreateCategoryFormSchema),
     defaultValues,
     mode: 'all',
   });
 
-  async function onSubmit(data: ProfileFormValues) {
+  async function onSubmit(data: MainCreateCategoryFormValues) {
     const formData = new FormData();
     formData.append('file', data.image);
     formData.append('name', data.name);
     formData.append('description', data.description);
     formData.append('isActive', JSON.stringify(data.isActive));
     try {
-      setIsLoading(true); // Set loading state to true during the API request
-      // Make a POST request to your backend endpoint
+      setIsLoading(true);
       const response = await fetch('/api/categories', {
         method: 'POST',
         body: formData,
-        // Add headers if needed, e.g., for authentication or content type
       });
 
-      // Check if the request was successful (status code 2xx)
       if (response.ok) {
-        console.log(response);
-        // Handle success, e.g., show a success message
         toast({
           title: 'Category created successfully!',
           description: '',
           variant: 'default',
         });
       } else {
-        const errorData = await response.json(); // Parse JSON response
+        const errorData = await response.json();
 
-        // Handle error, e.g., show an error message
         toast({
           title: 'Oops, something went wrong',
           description: `${errorData.error}`,
@@ -75,10 +72,11 @@ export function CategoryForm() {
           variant: 'destructive',
         });
       }
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (error: any) {
+      throw new Error(error);
     } finally {
-      setIsLoading(false); // Reset loading state regardless of success or failure
+      setIsLoading(false);
+      router.push('http://localhost:3000/dashboard/categories');
     }
   }
 

@@ -50,9 +50,9 @@ model Product {
 
 model CategoriesOnProducts {
   product    Product    @relation(fields: [productId], references: [id])
-  productId  String // relation scalar field (used in the `@relation` attribute above)
+  productId  String 
   category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String // relation scalar field (used in the `@relation` attribute above)
+  categoryId String 
   assignedAt DateTime @default(now())
 
   @@id([productId, categoryId])

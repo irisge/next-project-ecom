@@ -7,7 +7,7 @@ const ALLOWED_FILE_TYPES = [
   'image/webp',
 ];
 
-export const profileFormSchema = z.object({
+export const mainCreateCategoryFormSchema = z.object({
   name: z
     .string()
     .min(2, {
@@ -16,11 +16,26 @@ export const profileFormSchema = z.object({
     .max(30, {
       message: 'Name must not be longer than 30 characters.',
     }),
-  image: z.custom<File>().refine((file) => ALLOWED_FILE_TYPES.includes(file?.type)),
+  image: z
+    .custom<File>()
+    .refine((file) => ALLOWED_FILE_TYPES.includes(file?.type)),
   description: z.string().max(500).min(4, {
     message: 'Description must be at least 4 characters.',
   }),
   isActive: z.boolean().default(true).optional(),
 });
 
-export type ProfileFormValues = z.infer<typeof profileFormSchema>;
+export type MainCreateCategoryFormValues = z.infer<
+  typeof mainCreateCategoryFormSchema
+>;
+
+export const editCategoryFormSchema = z.object({
+  name: z.optional(z.string()),
+  description: z.optional(z.string()),
+  isActive: z.optional(z.boolean()),
+  image: z.optional(
+    z.custom<File>().refine((file) => ALLOWED_FILE_TYPES.includes(file?.type))
+  ),
+});
+
+export type EditCategoryFormValues = z.infer<typeof editCategoryFormSchema>;

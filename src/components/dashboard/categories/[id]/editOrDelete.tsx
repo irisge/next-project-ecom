@@ -1,8 +1,19 @@
 'use client';
+
+import React from 'react';
+import Link from 'next/link';
+
 import Icon from '@/components/iconComponent';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import React from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from '@/components/ui/dialog';
 
 async function handleDelete(id: string) {
   try {
@@ -10,13 +21,10 @@ async function handleDelete(id: string) {
       method: 'DELETE',
     });
 
-    // Check if the request was successful (status code 2xx)
     if (response.ok) {
-      console.log(response);
-      // Handle success, e.g., show a success message
       return await response.json();
     } else {
-      const errorData = await response.json(); // Parse JSON response
+      const errorData = await response.json();
       throw new Error(errorData);
     }
   } catch (error) {
@@ -28,13 +36,37 @@ const EditOrDelete = ({ id }: { id: string }) => {
     <>
       <span className='flex w-min items-center space-x-6'>
         <Link href={`http://localhost:3000/dashboard/categories/${id}/edit`}>
-          <Button className='bg-transparent'>
+          <Button className='bg-transparent hover:bg-muted'>
             <Icon name='pencil' color='#4d4ab4' />
           </Button>
         </Link>
-        <Button onClick={() => handleDelete(id)} className='bg-transparent'>
-          <Icon name='trash-2' color='#CC3333' />
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className='bg-transparent hover:bg-muted'>
+              <Icon name='trash-2' color='#CC3333' />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. This will permanently remove your data from our servers.
+              </DialogDescription>
+            </DialogHeader>
+            <div className='space-x-4 place-self-end'>
+              <DialogClose asChild>
+                <Button type='button' variant='secondary'>
+                  Close
+                </Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button onClick={() => handleDelete(id)} variant='destructive'>
+                  Confirm
+                </Button>
+              </DialogClose>
+            </div>
+          </DialogContent>
+        </Dialog>
       </span>
     </>
   );

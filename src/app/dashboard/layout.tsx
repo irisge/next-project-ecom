@@ -39,7 +39,7 @@ export default function DashboardLayout({
             className='p-6 text-white lg:p-0 lg:px-6 lg:py-12'
           />
         </aside>
-        <section className='xs:w-[90%] p-auto m-auto self-center py-10 sm:w-full sm:px-14 lg:pr-12'>
+        <section className='p-auto justify-self-center py-10 xs:w-[90%] sm:w-full sm:px-14 lg:pr-12'>
           {children}
         </section>
       </div>

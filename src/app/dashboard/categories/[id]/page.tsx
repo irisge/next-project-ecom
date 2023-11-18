@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import Image from 'next/image';
+
 import EditOrDelete from '@/components/dashboard/categories/[id]/editOrDelete';
 import {
   Card,
@@ -6,10 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-// import { ToastAction } from '@/components/ui/toast';
-// import { toast } from '@/components/ui/use-toast';
-import Link from 'next/link';
-import Image from 'next/image';
 
 async function getData(id: string) {
   try {
@@ -17,25 +16,21 @@ async function getData(id: string) {
       method: 'GET',
     });
 
-    // Check if the request was successful (status code 2xx)
     if (response.ok) {
-      console.log(response);
-      // Handle success, e.g., show a success message
       return await response.json();
     } else {
-      const errorData = await response.json(); // Parse JSON response
-      console.log(errorData);
+      const errorData = await response.json();
+      console.error(errorData);
     }
     return await response.json();
-  } catch (error) {
-    console.error('Error:', error);
+  } catch (error: any) {
+    throw new Error(error);
   }
 }
 
 export default async function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const categoryData = await getData(id);
-
 
   return (
     <>

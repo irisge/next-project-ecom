@@ -62,7 +62,7 @@ const SortableCategory = ({ category }: { category: Category; index: any }) => {
               quality={50}
               width={250}
               height={250}
-              className='aspect-square rounded-sm object-cover drop-shadow-sm'
+              className='aspect-square w-auto rounded-sm object-cover drop-shadow-sm'
             />
           )}
         </div>
