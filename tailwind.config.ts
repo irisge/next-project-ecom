@@ -8,6 +8,10 @@ module.exports = {
     './src/**/*.{ts,tsx}',
   ],
   theme: {
+    screens: {
+      '2xs': '270px',
+      xs: '350px',
+    },
     container: {
       center: true,
       padding: '2rem',
@@ -50,6 +54,13 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+      },
+      gridTemplateColumns: {
+        cards: 'repeat(auto-fit, minmax(250px, 1fr))',
+        side: 'repeat(2, minmax(50px, 1fr))',
+      },
+      gridTemplateRows: {
+        cards: 'repeat(auto-fit, minmax(250px, 1fr))',
       },
       borderRadius: {
         lg: 'var(--radius)',

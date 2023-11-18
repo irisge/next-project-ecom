@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     });
 
     const file = parsedData.file;
-    const fileType = file.type
+    const fileType = file.type;
     const categoryName = parsedData.name;
     const description = parsedData.description;
     const isActive = Boolean(parsedData.isActive);
@@ -49,7 +49,13 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = file.name;
 
-    await uploadFileToS3(buffer, fileName, fileType, 'categories', categoryName);
+    await uploadFileToS3(
+      buffer,
+      fileName,
+      fileType,
+      'categories',
+      categoryName
+    );
 
     // Construct the S3 file URL
     const s3FileUrl = `https://${process.env.NEXT_PUBLIC_AWS_BUCKET_NAME}.s3.amazonaws.com/categories/${categoryName}-${fileName}`;
@@ -86,5 +92,45 @@ export async function POST(request: NextRequest) {
       { error: 'Error uploading file' },
       { status: 500 }
     );
+  }
+}
+
+export async function GET() {
+  try {
+    const getAllCategories = await prisma.category.findMany();
+    return NextResponse.json({ getAllCategories });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { error: 'Error retrieving categories' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: Request) {
+  if (req.method === 'PUT') {
+    const res = await req.json();
+
+    try {
+      const getAllCategories = await Promise.all(
+        res.categoriesData.map(async (category: any, index: number) => {
+          await prisma.category.update({
+            where: { id: category.id },
+            data: { order: index + 1 }, // Assuming order starts from 1
+          });
+        })
+      );
+
+      return NextResponse.json({ getAllCategories });
+    } catch (error) {
+      console.error(error);
+      return NextResponse.json(
+        { error: 'Error retrieving categories' },
+        { status: 500 }
+      );
+    }
+  } else {
+    return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
   }
 }
