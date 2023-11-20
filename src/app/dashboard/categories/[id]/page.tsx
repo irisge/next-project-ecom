@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import StatusPoint from '@/components/dashboard/statusPoint';
 
 async function getData(id: string) {
   try {
@@ -46,13 +47,7 @@ export default async function Page({ params }: { params: { id: string } }) {
                   <EditOrDelete id={id} />
                 </span>
                 <span className='flex items-center space-x-2'>
-                  <div
-                    className={`${
-                      categoryData.res.isActive
-                        ? 'bg-emerald-600'
-                        : 'bg-red-700'
-                    } h-4 w-4 rounded-full`}
-                  />
+                  <StatusPoint status={categoryData.res.isActive} />
                   <p className='font-normal'>
                     {categoryData.res.isActive ? 'active' : 'not active'}
                   </p>

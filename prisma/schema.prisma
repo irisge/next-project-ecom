@@ -33,7 +33,7 @@ model Category {
   slug String?
   canonicalUrl String?
   robotsTag String?
-  order Int?
+  orderIndex Int      @default(autoincrement())
   products CategoriesOnProducts[]
 }
 
