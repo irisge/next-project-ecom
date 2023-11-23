@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     const file = parsedData.file;
     const fileType = file.type;
-    const categoryName = parsedData.name;
+    const categoryName = parsedData.name.toLowerCase();
     const description = parsedData.description;
     const isActive = Boolean(parsedData.isActive);
 
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = file.name;
+    const fileName = file.name.toLowerCase();
 
     await uploadFileToS3(
       buffer,
@@ -97,7 +97,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const getAllCategories = await prisma.category.findMany();
+    const getAllCategories = await prisma.category.findMany({
+      orderBy: { orderIndex: 'asc' },
+    });
     return NextResponse.json({ getAllCategories });
   } catch (err) {
     console.error(err);
@@ -114,10 +116,10 @@ export async function PUT(req: Request) {
 
     try {
       const getAllCategories = await Promise.all(
-        res.categoriesData.map(async (category: any, index: number) => {
+        res.newData.map(async (category: any, index: number) => {
           await prisma.category.update({
             where: { id: category.id },
-            data: { order: index + 1 }, // Assuming order starts from 1
+            data: { orderIndex: index + 1 }, 
           });
         })
       );

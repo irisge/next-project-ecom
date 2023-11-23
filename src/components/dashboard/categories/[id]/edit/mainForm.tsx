@@ -103,6 +103,7 @@ export function MainCategoryFormEdit({
     } finally {
       setIsLoading(false);
       router.push('http://localhost:3000/dashboard/categories');
+      router.refresh();
     }
   }
 

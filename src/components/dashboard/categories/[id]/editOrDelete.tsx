@@ -14,6 +14,7 @@ import {
   DialogDescription,
   DialogClose,
 } from '@/components/ui/dialog';
+import { useRouter } from 'next/navigation';
 
 async function handleDelete(id: string) {
   try {
@@ -32,6 +33,7 @@ async function handleDelete(id: string) {
   }
 }
 const EditOrDelete = ({ id }: { id: string }) => {
+  const router = useRouter();
   return (
     <>
       <span className='flex w-min items-center space-x-6'>
@@ -50,7 +52,8 @@ const EditOrDelete = ({ id }: { id: string }) => {
             <DialogHeader>
               <DialogTitle>Are you sure absolutely sure?</DialogTitle>
               <DialogDescription>
-                This action cannot be undone. This will permanently remove your data from our servers.
+                This action cannot be undone. This will permanently remove your
+                data from our servers.
               </DialogDescription>
             </DialogHeader>
             <div className='space-x-4 place-self-end'>
@@ -60,7 +63,14 @@ const EditOrDelete = ({ id }: { id: string }) => {
                 </Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button onClick={() => handleDelete(id)} variant='destructive'>
+                <Button
+                  onClick={() => {
+                    handleDelete(id);
+                    router.push('http://localhost:3000/dashboard/categories');
+                    router.refresh();
+                  }}
+                  variant='destructive'
+                >
                   Confirm
                 </Button>
               </DialogClose>

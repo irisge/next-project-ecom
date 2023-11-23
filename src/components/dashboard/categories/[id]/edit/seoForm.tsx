@@ -88,6 +88,7 @@ function SeoForm({ id, categoryData }: { id: string; categoryData: any }) {
       throw new Error(error);
     } finally {
       router.push('http://localhost:3000/dashboard/categories');
+      router.refresh();
     }
   }
 
