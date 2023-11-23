@@ -1,9 +1,11 @@
 'use client';
-import React, { SetStateAction } from 'react';
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 import Icon from '@/components/iconComponent';
-import { NavigationMenuItem } from '@radix-ui/react-navigation-menu';
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
@@ -11,31 +13,30 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
     title: string;
     icon?: any;
   }[];
-  setFormStep: React.Dispatch<SetStateAction<string>>;
 }
 
-export function SidebarNav({
-  className,
-  items,
-  setFormStep,
-  ...props
-}: SidebarNavProps) {
+export function SidebarNav({ className, items, ...props }: SidebarNavProps) {
+  const pathname = usePathname();
+
   return (
     <nav
       className={cn(
-        'sm:justify-between md:flex md:flex-col	lg:space-x-0 lg:space-y-1 grid w-full 2xs:grid-cols-side xs:auto-cols-auto xs:grid-flow-col',
+        'flex w-full flex-wrap justify-between lg:flex-col lg:space-x-0 lg:space-y-1',
         className
       )}
       {...props}
     >
       {items.map((item) => (
-        <NavigationMenuItem
+        <Link
           key={item.href}
+          href={item.href}
           className={cn(
             buttonVariants({ variant: 'ghost' }),
-            'p-auto m-0 justify-start space-x-2 place-self-start bg-transparent text-secondary-foreground hover:bg-muted'
+            pathname === item.href
+              ? 'bg-[#8280CB] hover:bg-muted'
+              : 'hover:underline',
+            'm-0 flex w-min justify-start space-x-2 place-self-start p-0'
           )}
-          onClick={() => setFormStep(item.title)}
         >
           {item.icon ? (
             <>
@@ -45,7 +46,7 @@ export function SidebarNav({
           ) : (
             <h2>{item.title}</h2>
           )}
-        </NavigationMenuItem>
+        </Link>
       ))}
     </nav>
   );
