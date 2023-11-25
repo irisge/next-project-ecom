@@ -11,7 +11,7 @@ const sidebarNavItems = [
   {
     icon: 'file-image',
     title: 'Products',
-    href: 'product',
+    href: '/dashboard/products',
   },
   {
     icon: 'package-2',

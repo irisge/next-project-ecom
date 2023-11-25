@@ -16,7 +16,12 @@ const BodySchema = z.object({
   file: z
     .custom<File>()
     .refine((file) => ACCEPTED_FILE_TYPES.includes(file.type)),
+  imageAlt: z.string().min(1).max(100),
+  price: z.string(),
+  stock: z.string().optional(),
+  tags: z.string(),
   isActive: z.string(),
+  categories: z.string(),
 });
 export async function POST(request: NextRequest) {
   try {
@@ -26,16 +31,26 @@ export async function POST(request: NextRequest) {
       name: formData.get('name')?.toString(),
       description: formData.get('description')?.toString(),
       file: formData.get('file'),
+      imageAlt: formData.get('imageAlt'),
+      price: formData.get('price'),
+      stock: formData.get('stock'),
+      tags: formData.get('tags'),
       isActive: formData.get('isActive'),
+      categories: formData.get('categories'),
     });
 
     const file = parsedData.file;
     const fileType = file.type;
-    const categoryName = parsedData.name.toLowerCase();
+    const productName = parsedData.name.toLowerCase();
     const description = parsedData.description;
+    const imageAlt = parsedData.imageAlt;
+    const price = parsedData.price;
+    const stock = Number(parsedData.stock);
+    const tags = JSON.parse(parsedData.tags);
     const isActive = Boolean(parsedData.isActive);
+    const categories = JSON.parse(parsedData.categories);
 
-    if (!categoryName || !description) {
+    if (!productName || !description) {
       return NextResponse.json(
         { error: 'Name and description are required' },
         { status: 400 }
@@ -46,51 +61,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File is required' }, { status: 400 });
     }
 
+    const checkProductName = await prisma.product.findFirst({
+      where: {
+        name: productName,
+      },
+    });
+
+    if (checkProductName) {
+      return NextResponse.json(
+        { error: 'this product name is already used' },
+        { status: 400 }
+      );
+    }
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = file.name.toLowerCase();
+
+    const productNameWoWhiteSpace = productName.replaceAll(' ', '');
 
     await uploadFileToS3(
       buffer,
       fileName,
       fileType,
-      'categories',
-      categoryName.replaceAll(' ', '')
+      'products',
+      productNameWoWhiteSpace
     );
 
     // Construct the S3 file URL
-    const s3FileUrl = `https://${
-      process.env.NEXT_PUBLIC_AWS_BUCKET_NAME
-    }.s3.amazonaws.com/categories/${categoryName.replaceAll(
-      ' ',
-      ''
-    )}-${fileName}`;
+    const s3FileUrl = `https://${process.env.NEXT_PUBLIC_AWS_BUCKET_NAME}.s3.amazonaws.com/products/${productNameWoWhiteSpace}-${fileName}`;
 
-    const checkCategoryName = await prisma.category.findFirst({
-      where: {
-        name: categoryName,
-      },
-    });
-
-    if (checkCategoryName) {
-      return NextResponse.json(
-        { error: 'this category name is already used' },
-        { status: 400 }
-      );
-    }
-
-    const category = await prisma.category.create({
+    const product = await prisma.product.create({
       data: {
-        name: categoryName,
+        name: productName,
         description: description,
-        image: s3FileUrl,
+        image: Array(s3FileUrl),
+        imageAlt: Array(imageAlt),
+        price: parseFloat(Number(price).toFixed(2)),
+        quantityStock: stock,
         isActive: isActive,
+        tag: tags,
+        categories: {
+          create: categories.map(
+            (category: { label: string; value: string }) => ({
+              assignedAt: new Date(),
+              category: {
+                connect: {
+                  id: category['value'],
+                },
+              },
+            })
+          ),
+        },
       },
+      include: { categories: true },
     });
 
-    return NextResponse.json(
-      { success: true, fileUrl: s3FileUrl, category: category },
-      { status: 200 }
-    );
+    return Response.json({ data: product }, { status: 200 });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
@@ -102,10 +127,10 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const getAllCategories = await prisma.category.findMany({
-      orderBy: { orderIndex: 'asc' },
+    const getAllProducts = await prisma.product.findMany({
+      include: { categories: true },
     });
-    return NextResponse.json({ getAllCategories });
+    return NextResponse.json({ getAllProducts });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
