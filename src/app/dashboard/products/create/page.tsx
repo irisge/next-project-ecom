@@ -1,9 +1,9 @@
-import { ProductForm } from '@/components/dashboard/products/mainForm';
+import { CreateForm } from '@/components/common/forms/mainForm';
 
 export default function CreateCategoryPage() {
   return (
     <div className='space-y-6'>
-      <ProductForm />
+      <CreateForm target='product' />
     </div>
   );
 }

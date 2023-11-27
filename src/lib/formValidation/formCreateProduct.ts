@@ -23,18 +23,23 @@ export const mainCreateProductFormSchema = z.object({
     message: 'Description must be at least 4 characters.',
   }),
   imageAlt: z.string().min(2).max(100),
-  price: z
-    .preprocess(
-      (a) => parseInt(z.string().parse(a), 10),
-      z.number().nonnegative().optional()
-    )
-    .optional(),
-  stock: z
-    .preprocess(
-      (a) => parseInt(z.string().parse(a), 10),
-      z.number().int().nonnegative().optional()
-    )
-    .optional(),
+  formats: z.array(
+    z.object({
+      value: z.string().min(2, { message: 'Please enter a format size.' }),
+      price: z
+        .preprocess(
+          (a) => parseInt(z.string().parse(a), 10),
+          z.number().nonnegative().optional()
+        )
+        .optional(),
+      stock: z
+        .preprocess(
+          (a) => parseInt(z.string().parse(a), 10),
+          z.number().int().nonnegative().optional()
+        )
+        .optional(),
+    })
+  ),
   tags: z.array(z.string()).optional(),
   isActive: z.boolean().default(true).optional(),
   category: z.array(z.record(z.string().trim())),
@@ -51,6 +56,8 @@ export const editProductFormSchema = z.object({
   image: z.optional(
     z.custom<File>().refine((file) => ALLOWED_FILE_TYPES.includes(file?.type))
   ),
+  imageDescription: z.string().min(2).max(100).optional(),
+  category: z.array(z.record(z.string().trim())),
 });
 
 export type EditProductFormValues = z.infer<typeof editProductFormSchema>;

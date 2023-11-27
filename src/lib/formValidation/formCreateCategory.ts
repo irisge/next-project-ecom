@@ -19,6 +19,7 @@ export const mainCreateCategoryFormSchema = z.object({
   image: z
     .custom<File>()
     .refine((file) => ALLOWED_FILE_TYPES.includes(file?.type)),
+  imageAlt: z.string().min(2).max(100),
   description: z.string().max(500).min(4, {
     message: 'Description must be at least 4 characters.',
   }),
@@ -36,6 +37,7 @@ export const editCategoryFormSchema = z.object({
   image: z.optional(
     z.custom<File>().refine((file) => ALLOWED_FILE_TYPES.includes(file?.type))
   ),
+  imageDescription: z.string().min(2).max(100).optional(),
 });
 
 export type EditCategoryFormValues = z.infer<typeof editCategoryFormSchema>;

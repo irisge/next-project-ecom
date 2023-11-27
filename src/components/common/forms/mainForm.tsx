@@ -2,13 +2,8 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-
-import {
-  MainCreateCategoryFormValues,
-  mainCreateCategoryFormSchema,
-} from '@/lib/formValidation/formCreateCategory';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { toast } from '@/components/ui/use-toast';
 import {
@@ -21,44 +16,91 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { ToastAction } from '@/components/ui/toast';
+import {DescriptionInput} from '../inputs/descriptionInput';
+import {StatusInput} from '../inputs/statusInput';
+import {AddFormatInput} from '../inputs/addFormatInput';
+import {TagsInput} from '../inputs/tagsInput';
+import { AppendCategory } from '../inputs/appendCategory';
+import { NameInput } from '../inputs/nameInput';
+
+import {
+  MainCreateProductFormValues,
+  mainCreateProductFormSchema,
+} from '@/lib/formValidation/formCreateProduct';
+import {
+  MainCreateCategoryFormValues,
+  mainCreateCategoryFormSchema,
+} from '@/lib/formValidation/formCreateCategory';
 
 const defaultValues: Partial<MainCreateCategoryFormValues> = {
   name: '',
   image: undefined,
+  imageAlt: '',
   description: '',
   isActive: true,
 };
 
-export function CategoryForm() {
+export function CreateForm({ target }: { target: string }) {
   const router = useRouter();
+  let schema;
+  if (target === 'product') {
+    schema = mainCreateProductFormSchema;
+  } else {
+    schema = mainCreateCategoryFormSchema;
+  }
   // eslint-disable-next-line no-unused-vars
   const [_isLoading, setIsLoading] = useState<boolean>(false);
-  const form = useForm<MainCreateCategoryFormValues>({
-    resolver: zodResolver(mainCreateCategoryFormSchema),
+  const form = useForm<
+    MainCreateCategoryFormValues | MainCreateProductFormValues
+  >({
+    resolver: zodResolver(schema),
     defaultValues,
     mode: 'all',
   });
 
-  async function onSubmit(data: MainCreateCategoryFormValues) {
+  async function onSubmit(
+    data: MainCreateCategoryFormValues | MainCreateProductFormValues
+  ) {
     const formData = new FormData();
     formData.append('file', data.image);
+    formData.append('imageAlt', data.imageAlt);
     formData.append('name', data.name);
     formData.append('description', data.description);
     formData.append('isActive', JSON.stringify(data.isActive));
+    if (target === 'product' && 'formats' in data) {
+      const formatsArray = data.formats.map((format) => ({
+        value: format.value,
+        price: format.price && format.price.toString(),
+        stock: format.stock && format.stock.toString(),
+      }));
+
+      formData.append('formats', JSON.stringify(formatsArray));
+    }
+    if (target === 'product' && 'tags' in data) {
+      formData.append('tags', JSON.stringify(data.tags));
+    }
+    if (target === 'product' && 'category' in data) {
+      formData.append('categories', JSON.stringify(data.category));
+    }
+
     try {
+      let url: string;
+      if (target === 'category') {
+        url = '/api/categories';
+      } else {
+        url = '/api/products';
+      }
       setIsLoading(true);
-      const response = await fetch('/api/categories', {
+      const response = await fetch(url, {
         method: 'POST',
         body: formData,
       });
 
       if (response.ok) {
         toast({
-          title: 'Category created successfully!',
+          title: `${target} created successfully!`,
           description: '',
           variant: 'default',
         });
@@ -76,30 +118,18 @@ export function CategoryForm() {
       throw new Error(error);
     } finally {
       setIsLoading(false);
-      router.push('http://localhost:3000/dashboard/categories');
+      if (target === 'category') {
+        router.push('http://localhost:3000/dashboard/categories');
+      } else {
+        router.push('http://localhost:3000/dashboard/products');
+      }
     }
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-        <FormField
-          control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder='sport' {...field} />
-              </FormControl>
-              <FormDescription>
-                This is the public category name that will be display on the
-                shop.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <NameInput form={form} target={target} mode='create' />
         <FormField
           control={form.control}
           name='image'
@@ -121,8 +151,7 @@ export function CategoryForm() {
               <FormDescription>
                 This is the category image that will be display on the shop.
                 <br />
-                Please note that the image name will be used to generate the
-                image description and matters for SEO.
+                Please note that the image name matters for SEO.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -130,43 +159,34 @@ export function CategoryForm() {
         />
         <FormField
           control={form.control}
-          name='description'
+          name='imageAlt'
+          // eslint-disable-next-line no-unused-vars
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Image description</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder='Tell us a little bit about this category'
-                  className='resize'
-                  {...field}
+                <Input
+                  placeholder='a few words describing the image'
+                  onChange={field.onChange}
                 />
               </FormControl>
               <FormDescription>
-                This is the public category description that will be display on
-                the shop. It will impact your SEO.
+                This description will be display in case the image can&apos;t be
+                displayed and for accessibility. This impacts SEO.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name='isActive'
-          render={({ field }) => (
-            <FormItem className='flex flex-col'>
-              <FormLabel>Is active ?</FormLabel>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <DescriptionInput form={form} target={target} />
+        <StatusInput form={form} />
+        {target === 'product' && (
+          <AddFormatInput form={form} target={'product'} />
+        )}
+        {target === 'product' && <TagsInput form={form} />}
+        {target === 'product' && <AppendCategory form={form} />}
         <Button type='submit' className='bg-[#4d4ab4]'>
-          Create category
+          Create {target}
         </Button>
       </form>
     </Form>

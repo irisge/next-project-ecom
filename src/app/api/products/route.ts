@@ -17,11 +17,16 @@ const BodySchema = z.object({
     .custom<File>()
     .refine((file) => ACCEPTED_FILE_TYPES.includes(file.type)),
   imageAlt: z.string().min(1).max(100),
-  price: z.string(),
-  stock: z.string().optional(),
   tags: z.string(),
   isActive: z.string(),
   categories: z.string(),
+  formats: z.string(
+    z.object({
+      value: z.string().min(5),
+      price: z.string(),
+      stock: z.string().optional(),
+    })
+  ),
 });
 export async function POST(request: NextRequest) {
   try {
@@ -32,8 +37,7 @@ export async function POST(request: NextRequest) {
       description: formData.get('description')?.toString(),
       file: formData.get('file'),
       imageAlt: formData.get('imageAlt'),
-      price: formData.get('price'),
-      stock: formData.get('stock'),
+      formats: formData.get('formats'),
       tags: formData.get('tags'),
       isActive: formData.get('isActive'),
       categories: formData.get('categories'),
@@ -43,9 +47,12 @@ export async function POST(request: NextRequest) {
     const fileType = file.type;
     const productName = parsedData.name.toLowerCase();
     const description = parsedData.description;
-    const imageAlt = parsedData.imageAlt;
-    const price = parsedData.price;
-    const stock = Number(parsedData.stock);
+    const formats = JSON.parse(parsedData.formats).map((format: any) => ({
+      formatName: format.value,
+      price: format.price,
+      quantityStock: format.stock ? Number(format.stock) : undefined,
+    }));
+
     const tags = JSON.parse(parsedData.tags);
     const isActive = Boolean(parsedData.isActive);
     const categories = JSON.parse(parsedData.categories);
@@ -76,7 +83,9 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = file.name.toLowerCase();
 
-    const productNameWoWhiteSpace = productName.replaceAll(' ', '');
+    const productNameWoWhiteSpace = productName
+      .replaceAll(' ', '')
+      .toLocaleLowerCase();
 
     await uploadFileToS3(
       buffer,
@@ -93,10 +102,6 @@ export async function POST(request: NextRequest) {
       data: {
         name: productName,
         description: description,
-        image: Array(s3FileUrl),
-        imageAlt: Array(imageAlt),
-        price: parseFloat(Number(price).toFixed(2)),
-        quantityStock: stock,
         isActive: isActive,
         tag: tags,
         categories: {
@@ -111,8 +116,19 @@ export async function POST(request: NextRequest) {
             })
           ),
         },
+        images: {
+          create: [
+            {
+              url: s3FileUrl,
+              imageDescription: parsedData.imageAlt,
+            },
+          ],
+        },
+        format: {
+          create: [...formats],
+        },
       },
-      include: { categories: true },
+      include: { categories: true, images: true, format: true },
     });
 
     return Response.json({ data: product }, { status: 200 });
@@ -128,7 +144,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const getAllProducts = await prisma.product.findMany({
-      include: { categories: true },
+      include: { categories: true, images: true },
     });
     return NextResponse.json({ getAllProducts });
   } catch (err) {

@@ -17,7 +17,7 @@ export const SEOFormSchema = z.object({
 
 export type SEOFormValues = z.infer<typeof SEOFormSchema>;
 
-export const editCategorySEOFormSchema = z.object({
+export const editSEOFormSchema = z.object({
   metaTitle: z.optional(
     z
       .string()
@@ -41,4 +41,4 @@ export const editCategorySEOFormSchema = z.object({
   ),
 });
 
-export type EditCategorySEOFormValues = z.infer<typeof editCategorySEOFormSchema>;
+export type EditSEOFormValues = z.infer<typeof editSEOFormSchema>;

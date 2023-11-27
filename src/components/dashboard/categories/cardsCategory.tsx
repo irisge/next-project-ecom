@@ -31,10 +31,10 @@ function CardsCategory({ categoriesData }: { categoriesData: Category[] }) {
             </Link>
             <CardContent className='flex aspect-square w-full items-center justify-center'>
               <div className='aspect-square h-auto w-full rounded-md drop-shadow-md'>
-                {category.image && (
+                {category.images && (
                   <Image
-                    src={category.image}
-                    alt={category.image}
+                    src={category.images[0].url}
+                    alt={category.images[0].imageDescription}
                     quality={50}
                     width={250}
                     height={250}

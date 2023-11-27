@@ -58,14 +58,24 @@ export default async function Page({ params }: { params: { id: string } }) {
           </CardHeader>
           <CardContent>
             <div className='p-auto m-auto h-auto w-full rounded-md drop-shadow-md'>
-              <Image
-                src={categoryData.res.image}
-                alt='ctaegory image'
-                quality={50}
-                width={500}
-                height={500}
-                className='aspect-square rounded-sm object-cover drop-shadow-sm'
-              />
+              {categoryData.res.images.map(
+                (image: {
+                  id: string;
+                  url: string;
+                  imageDescription: string;
+                  categoryId: string;
+                }) => (
+                  <Image
+                    key={image.id}
+                    src={image.url}
+                    alt={image.imageDescription}
+                    quality={50}
+                    width={500}
+                    height={500}
+                    className='aspect-square rounded-sm object-cover drop-shadow-sm'
+                  />
+                )
+              )}
             </div>
             <div>
               <h6>Products bind to this category</h6>

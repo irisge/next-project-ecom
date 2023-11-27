@@ -17,6 +17,7 @@ const BodySchema = z.object({
     .custom<File>()
     .refine((file) => ACCEPTED_FILE_TYPES.includes(file.type)),
   isActive: z.string(),
+  imageAlt: z.string().min(1).max(100),
 });
 export async function POST(request: NextRequest) {
   try {
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest) {
       name: formData.get('name')?.toString(),
       description: formData.get('description')?.toString(),
       file: formData.get('file'),
+      imageAlt: formData.get('imageAlt'),
       isActive: formData.get('isActive'),
     });
 
@@ -54,7 +56,7 @@ export async function POST(request: NextRequest) {
       fileName,
       fileType,
       'categories',
-      categoryName.replaceAll(' ', '')
+      categoryName.replaceAll(' ', '').toLowerCase()
     );
 
     // Construct the S3 file URL
@@ -82,9 +84,17 @@ export async function POST(request: NextRequest) {
       data: {
         name: categoryName,
         description: description,
-        image: s3FileUrl,
         isActive: isActive,
+        images: {
+          create: [
+            {
+              url: s3FileUrl,
+              imageDescription: parsedData.imageAlt,
+            },
+          ],
+        },
       },
+      include: { images: true },
     });
 
     return NextResponse.json(
@@ -104,6 +114,7 @@ export async function GET() {
   try {
     const getAllCategories = await prisma.category.findMany({
       orderBy: { orderIndex: 'asc' },
+      include: { images: true },
     });
     return NextResponse.json({ getAllCategories });
   } catch (err) {
