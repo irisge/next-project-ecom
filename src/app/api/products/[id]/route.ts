@@ -22,24 +22,22 @@ const BodyEditSchema = z.object({
     z.custom<File>().refine((file) => ACCEPTED_FILE_TYPES.includes(file.type))
   ),
   fileDescription: z.optional(z.string().max(100)),
+  categories: z.optional(z.string().optional()),
 });
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const category = params.id;
+  const product = params.id;
   try {
-    const res = await prisma.category.findFirst({
+    const res = await prisma.product.findFirst({
       where: {
-        id: category,
+        id: product,
       },
-      include: { images: true, products: true },
+      include: { images: true, categories: true },
     });
     if (!res) {
-      return NextResponse.json(
-        { error: 'Category not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
     return NextResponse.json({ res });
@@ -57,20 +55,17 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const categoryId = params.id;
+  const productId = params.id;
 
   try {
-    const getCategory = await prisma.category.findFirst({
+    const getProduct = await prisma.product.findFirst({
       where: {
-        id: categoryId,
+        id: productId,
       },
     });
 
-    if (!getCategory) {
-      return NextResponse.json(
-        { error: 'Category not found' },
-        { status: 404 }
-      );
+    if (!getProduct) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
     const formData = await request.formData();
@@ -85,6 +80,7 @@ export async function PUT(
       metaDescription: formData.get('metaDescription') || undefined,
       file: formData.get('file') || undefined,
       fileDescription: formData.get('fileDescription') || undefined,
+      categories: formData.get('categories') || undefined,
     });
 
     // Extract modified fields from the form data
@@ -103,38 +99,39 @@ export async function PUT(
       updateData.isActive = isActive === 'true' ? true : false;
 
     let s3FileUrl: string | undefined;
+
     // If an image is provided, update the image field
     if (formData.has('file')) {
       const file = formData.get('file') as File;
       const buffer = Buffer.from(await file.arrayBuffer());
       const fileName = file.name.toLowerCase();
       const fileType = file.type;
-      const categoryNameForS3 = name
-        ? name.toLocaleLowerCase()
-        : getCategory.name.toLocaleLowerCase();
+      const productNameForS3 = name
+        ? name.toLowerCase().replaceAll(' ', '')
+        : getProduct.name.toLowerCase().replaceAll(' ', '');
 
       await uploadFileToS3(
         buffer,
         fileName,
         fileType,
-        'categories',
-        categoryNameForS3
+        'products',
+        productNameForS3.replaceAll(' ', '')
       );
 
       // Construct the S3 file URL
-      s3FileUrl = `https://${process.env.NEXT_PUBLIC_AWS_BUCKET_NAME}.s3.amazonaws.com/categories/${categoryNameForS3}-${fileName}`;
+      s3FileUrl = `https://${process.env.NEXT_PUBLIC_AWS_BUCKET_NAME}.s3.amazonaws.com/products/${productNameForS3}-${fileName}`;
     }
 
     if (metaTitle !== null) updateData.metaTitle = metaTitle;
     if (keywords !== null) updateData.keywords = keywords;
     if (metaDescription !== null) updateData.metaDescription = metaDescription;
 
-    const updatedCategoryData: Record<string, any> = {
+    const updatedProductData: Record<string, any> = {
       ...updateData,
     };
 
     if (s3FileUrl !== undefined || parsedData.fileDescription !== undefined) {
-      updatedCategoryData.images = {
+      updatedProductData.images = {
         create: [
           {
             url: s3FileUrl,
@@ -144,16 +141,34 @@ export async function PUT(
       };
     }
 
-    const updatedCategory = await prisma.category.update({
+    if (parsedData.categories) {
+      const categories = JSON.parse(parsedData.categories);
+
+      updatedProductData.categories = {
+        create: categories.map(
+          (category: { label: string; value: string }) => ({
+            assignedAt: new Date(),
+            category: {
+              connect: {
+                id: category['value'],
+              },
+            },
+          })
+        ),
+      };
+    }
+
+    const updatedProduct = await prisma.product.update({
       where: {
-        id: categoryId,
+        id: productId,
       },
-      data: updatedCategoryData,
-      include: { images: true },
+      data: updatedProductData,
+      include: { images: true, categories: true },
     });
 
-    return NextResponse.json({ updatedCategory });
+    return NextResponse.json({ updatedProduct });
   } catch (e) {
+    console.error(e);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       {
@@ -172,22 +187,19 @@ export async function DELETE(
       status: 405,
     });
   }
-  const category = params.id;
+  const product = params.id;
 
   try {
-    const res = await prisma.category.findFirst({
+    const res = await prisma.product.findFirst({
       where: {
-        id: category,
+        id: product,
       },
       include: {
         images: true,
       },
     });
     if (!res) {
-      return NextResponse.json(
-        { error: 'Category not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
     if (res.images) {
       res.images.forEach(async (image) => {
@@ -195,16 +207,16 @@ export async function DELETE(
       });
     }
 
-    await prisma.category.delete({
+    await prisma.product.delete({
       where: {
-        id: category,
+        id: product,
       },
       include: {
         images: true,
       },
     });
 
-    return NextResponse.json({ message: 'Category deleted' }, { status: 200 });
+    return NextResponse.json({ message: 'Product deleted' }, { status: 200 });
   } catch (e) {
     return new Response('Internal Server Error.', {
       status: 500,

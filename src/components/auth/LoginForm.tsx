@@ -39,8 +39,7 @@ const LoginForm: React.FC = () => {
           !!bearer && sessionStorage.setItem('access', bearer);
           router.push('/');
         } else {
-          const errorData = await response.json(); // Parse JSON response
-          // Handle non-successful response (e.g., log the error, show a message)
+          const errorData = await response.json(); 
           toast({
             variant: 'destructive',
             title: 'Something went wrong',

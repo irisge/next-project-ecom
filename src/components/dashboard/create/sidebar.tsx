@@ -23,14 +23,14 @@ export function SidebarNav({
   return (
     <nav
       className={cn(
-        'sm:justify-between md:flex md:flex-col	lg:space-x-0 lg:space-y-1 grid w-full 2xs:grid-cols-side xs:auto-cols-auto xs:grid-flow-col',
+        'grid w-full 2xs:grid-cols-side	xs:auto-cols-auto xs:grid-flow-col sm:justify-between md:flex md:flex-col lg:space-x-0 lg:space-y-1',
         className
       )}
       {...props}
     >
       {items.map((item) => (
         <NavigationMenuItem
-          key={item.href}
+          key={item.title}
           className={cn(
             buttonVariants({ variant: 'ghost' }),
             'p-auto m-0 justify-start space-x-2 place-self-start bg-transparent text-secondary-foreground hover:bg-muted'

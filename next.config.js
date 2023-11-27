@@ -5,7 +5,7 @@ const nextConfig = {
         remotePatterns: [
         {
             protocol: 'https',
-            hostname: 'nextruudawsbucket.s3.amazonaws.com',
+            hostname: 'nextruudawsbucket.s3.*',
         },
         ],
     },

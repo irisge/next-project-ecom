@@ -7,8 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ReloadIcon } from '@radix-ui/react-icons';
 
 import {
-  EditCategorySEOFormValues,
-  editCategorySEOFormSchema,
+  EditSEOFormValues,
+  editSEOFormSchema,
 } from '@/lib/formValidation/formSEOCategory';
 
 import { Button } from '@/components/ui/button';
@@ -25,48 +25,55 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ToastAction } from '@/components/ui/toast';
 import { toast } from '@/components/ui/use-toast';
+import { TagsInput } from '../inputs/tagsInput';
+import { Category, Product } from '@prisma/client';
 
-function SeoForm({ id, categoryData }: { id: string; categoryData: any }) {
+function SeoForm({
+  id,
+  itemData,
+  target,
+}: {
+  id: string;
+  itemData: Category | Product;
+  target: string;
+}) {
   const router = useRouter();
   // eslint-disable-next-line no-unused-vars
-  const form = useForm<EditCategorySEOFormValues>({
-    resolver: zodResolver(editCategorySEOFormSchema),
+  const form = useForm<EditSEOFormValues>({
+    resolver: zodResolver(editSEOFormSchema),
     mode: 'onTouched',
   });
 
-  async function onSubmit(data: EditCategorySEOFormValues) {
+  async function onSubmit(data: EditSEOFormValues) {
     const formData = new FormData();
 
     // Check if values have been modified and if values are not the default values then append formData
-    if (
-      data.metaTitle !== categoryData.res.metaTitle &&
-      data.metaTitle !== undefined
-    ) {
+    if (data.metaTitle !== itemData.metaTitle && data.metaTitle !== undefined) {
       formData.append('metaTitle', data.metaTitle);
     }
 
-    if (
-      data.keywords !== categoryData.res.keywords &&
-      data.keywords !== undefined
-    ) {
+    if (data.keywords !== itemData.keywords && data.keywords !== undefined) {
       formData.append('keywords', data.keywords);
     }
 
     if (
-      data.metaDescription !== categoryData.res.metaDescription &&
+      data.metaDescription !== itemData.metaDescription &&
       data.metaDescription !== undefined
     ) {
       formData.append('metaDescription', data.metaDescription);
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/api/categories/${id}`,
-        {
-          method: 'PUT', // Assuming you're updating an existing resource
-          body: formData,
-        }
-      );
+      let url: string;
+      if (target === 'product') {
+        url = `http://localhost:3000/api/products/${id}`;
+      } else {
+        url = `http://localhost:3000/api/categories/${id}`;
+      }
+      const response = await fetch(url, {
+        method: 'PUT', // Assuming you're updating an existing resource
+        body: formData,
+      });
 
       if (response.ok) {
         toast({
@@ -87,12 +94,11 @@ function SeoForm({ id, categoryData }: { id: string; categoryData: any }) {
     } catch (error: any) {
       throw new Error(error);
     } finally {
-      router.push('http://localhost:3000/dashboard/categories');
       router.refresh();
     }
   }
 
-  if (!categoryData.res) {
+  if (!itemData) {
     return (
       <Button disabled>
         <ReloadIcon className='mr-2 h-4 w-4 animate-spin' />
@@ -113,7 +119,7 @@ function SeoForm({ id, categoryData }: { id: string; categoryData: any }) {
               <FormControl>
                 <Input
                   placeholder='title'
-                  defaultValue={categoryData.res.metaTitle}
+                  defaultValue={itemData.metaTitle || ''}
                   onChange={field.onChange}
                 />
               </FormControl>
@@ -133,7 +139,7 @@ function SeoForm({ id, categoryData }: { id: string; categoryData: any }) {
               <FormControl>
                 <Input
                   placeholder='keywords'
-                  defaultValue={categoryData.res.keywords}
+                  defaultValue={itemData.keywords || ''}
                   onChange={field.onChange}
                 />
               </FormControl>
@@ -153,7 +159,7 @@ function SeoForm({ id, categoryData }: { id: string; categoryData: any }) {
               <FormControl>
                 <Textarea
                   placeholder='Tell us a little bit about this category'
-                  defaultValue={categoryData.res.metaDescription}
+                  defaultValue={itemData.metaDescription || ''}
                   className='resize'
                   onChange={field.onChange}
                 />
@@ -166,9 +172,12 @@ function SeoForm({ id, categoryData }: { id: string; categoryData: any }) {
             </FormItem>
           )}
         />
+        {target === 'product' && itemData && (
+          <TagsInput form={form} itemData={itemData as Product} />
+        )}
 
         <Button type='submit' className='bg-[#4d4ab4]'>
-          Add these SEO tags to your category
+          Update these SEO settings for this {target}
         </Button>
       </form>
     </Form>
