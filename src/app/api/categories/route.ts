@@ -114,7 +114,10 @@ export async function GET() {
   try {
     const getAllCategories = await prisma.category.findMany({
       orderBy: { orderIndex: 'asc' },
-      include: { images: true },
+      include: {
+        images: true,
+        products: true,
+      },
     });
     return NextResponse.json({ getAllCategories });
   } catch (err) {

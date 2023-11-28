@@ -30,6 +30,8 @@ function Categories() {
     setData(categoriesData);
   }, [categoriesData]);
 
+  console.log(categoriesData)
+
   return (
     <div className='flex min-h-screen w-full flex-col items-start justify-start space-y-4 '>
       <h2 className='font-bold text-[#4d4ab4]'>Categories</h2>
