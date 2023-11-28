@@ -45,6 +45,8 @@ export function AddNewImage({ target, id }: { target: string; id: string }) {
     resolver: zodResolver(schema),
     mode: 'onTouched',
   });
+
+  console.log(form.formState.errors);
   async function onSubmit(
     data: EditCategoryFormValues | EditProductFormValues
   ) {
@@ -139,7 +141,7 @@ export function AddNewImage({ target, id }: { target: string; id: string }) {
                     <FormControl>
                       <Input
                         placeholder='a racer in competition ready for the start'
-                        {...field}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormDescription>

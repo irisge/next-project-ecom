@@ -1,21 +1,28 @@
 'use client';
-import { Button } from '@/components/ui/button';
-import { Product } from '@prisma/client';
-import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Product } from '@prisma/client';
+
+import { Button } from '@/components/ui/button';
+import ProductList from '@/components/dashboard/products/productList';
+import Loading from './loading';
 
 function ProductsPage() {
-  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [products, setProducts] = useState<Product[]>([]);
+
   const handleFetchProducts = () =>
     fetch('http://localhost:3000/api/products')
       .then((res) => res.json())
       .then((res) => {
+        setLoading(false);
         setProducts(res.getAllProducts);
       });
 
   useEffect(() => {
     handleFetchProducts();
   }, []);
+
   return (
     <div className='flex min-h-screen w-full flex-col items-start justify-start space-y-4 '>
       <h2 className='font-bold text-[#4d4ab4]'>Products</h2>
@@ -25,16 +32,7 @@ function ProductsPage() {
         </Link>
       </section>
       <section className='my-auto flex w-full flex-col '>
-        {products &&
-          products.map((product: Product) => (
-            <li className='list-none' key={product.id}>
-              <Link
-                href={`http://localhost:3000/dashboard/products/${product.id}`}
-              >
-                <h2>{product.name}</h2>
-              </Link>
-            </li>
-          ))}
+        {loading ? <Loading /> : <ProductList products={products} />}
       </section>
     </div>
   );

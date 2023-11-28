@@ -6,8 +6,10 @@ import CardAddCategory from '@/components/dashboard/categories/cardAddCategory';
 import CardsCategory from '@/components/dashboard/categories/cardsCategory';
 import DialogOrderCategories from '@/components/dashboard/categories/DialogOrderCategories';
 import { Category } from '@/lib/types/interfaces';
+import Loading from './loading';
 
 function Categories() {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [categoriesData, setCategoriesData] = useState<Category[]>([]);
   const [data, setData] = useState<Category[]>(categoriesData);
   const [isOrderModalClose, setIsOrderModalClose] = useState<boolean>(true);
@@ -19,6 +21,7 @@ function Categories() {
       throw new Error(`${errorData.error}`);
     }
     const data = await res.json();
+    setIsLoading(false);
     return setCategoriesData(data.getAllCategories);
   };
 
@@ -30,8 +33,6 @@ function Categories() {
     setData(categoriesData);
   }, [categoriesData]);
 
-  console.log(categoriesData)
-
   return (
     <div className='flex min-h-screen w-full flex-col items-start justify-start space-y-4 '>
       <h2 className='font-bold text-[#4d4ab4]'>Categories</h2>
@@ -40,7 +41,11 @@ function Categories() {
           <Link href='categories/create' className='h-full'>
             <CardAddCategory />
           </Link>
-          <CardsCategory categoriesData={categoriesData} />
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <CardsCategory categoriesData={categoriesData} />
+          )}
         </section>
         <DialogOrderCategories
           data={data}
