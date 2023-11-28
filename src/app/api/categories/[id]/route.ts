@@ -33,7 +33,18 @@ export async function GET(
       where: {
         id: category,
       },
-      include: { images: true, products: true },
+      include: {
+        images: true,
+        products: {
+          include: {
+            product: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
     if (!res) {
       return NextResponse.json(

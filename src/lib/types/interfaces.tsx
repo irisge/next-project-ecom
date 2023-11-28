@@ -6,7 +6,7 @@ export interface Category {
   description: string;
   images: CategoryImage[];
   products: CategoriesOnProducts[];
-  status: string;
+  isActive: boolean;
   metaTitle: string;
   keywords: string;
   metaDescription: string;
