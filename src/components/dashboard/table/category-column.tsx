@@ -1,7 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import StatusPoint from '../statusPoint';
+import StatusPoint from '../../common/dashboard/statusPoint';
 
 export type Category = {
   id: string;
@@ -26,5 +26,5 @@ export const columns: ColumnDef<Category>[] = [
   {
     accessorKey: 'products',
     header: 'products',
-  }
+  },
 ];

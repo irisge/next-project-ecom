@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import StatusPoint from '@/components/dashboard/statusPoint';
+import StatusPoint from '@/components/common/dashboard/statusPoint';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Category } from '@/lib/types/interfaces';

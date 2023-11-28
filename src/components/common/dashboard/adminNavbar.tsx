@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Menubar, MenubarMenu, MenubarTrigger } from '../ui/menubar';
+import { Menubar, MenubarMenu, MenubarTrigger } from '../../ui/menubar';
 import { Package, Boxes, FileImage, User2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 

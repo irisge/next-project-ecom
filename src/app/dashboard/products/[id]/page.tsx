@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { SidebarNav } from '@/components/dashboard/create/sidebar';
+import { SidebarNav } from '@/components/common/sidebar';
 import { Separator } from '@/components/ui/separator';
 import { Card } from '@/components/ui/card';
 import SeoForm from '@/components/common/forms/seoForm';
@@ -12,6 +12,7 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { Product } from '@prisma/client';
 import { Product as ProductWithRelations } from '@/lib/types/interfaces';
 import { ProductAttributesFormEdit } from '@/components/common/forms/productAttributesFormEdit';
+import { DeleteDialog } from '@/components/common/dialogs/deleteDialog';
 
 const sidebarNavItems = [
   {
@@ -74,10 +75,17 @@ function EditCategoryPage({ params }: { params: { id: string } }) {
       <div className='block space-y-6 p-10 pb-16'>
         <div className='space-y-0.5'>
           <h2 className='text-2xl font-bold tracking-tight'>Edit</h2>
-          <p className='text-muted-foreground'>
-            Manage your future product settings and set your product SEO meta
-            elements.
-          </p>
+          <div className='flex w-full flex-col items-end justify-between sm:flex-row sm:items-center'>
+            <p className='text-muted-foreground'>
+              Manage your future product settings and set your product SEO meta
+              elements.
+            </p>
+            <DeleteDialog
+              url={'http://localhost:3000/api/products'}
+              id={params.id}
+              redirect={'http://localhost:3000/dashboard/products/'}
+            />
+          </div>
         </div>
         <Separator className='my-6' />
         <div className='flex flex-col space-y-8 md:flex-row lg:space-x-12 lg:space-y-0'>

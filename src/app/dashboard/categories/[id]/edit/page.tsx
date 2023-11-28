@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Category } from '@prisma/client';
 import { ReloadIcon } from '@radix-ui/react-icons';
 
-import { SidebarNav } from '@/components/dashboard/create/sidebar';
+import { SidebarNav } from '@/components/common/sidebar';
 import { Separator } from '@/components/ui/separator';
 import { Card } from '@/components/ui/card';
 import SeoForm from '@/components/common/forms/seoForm';

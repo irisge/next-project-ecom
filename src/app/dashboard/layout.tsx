@@ -1,6 +1,6 @@
 import '../globals.css';
 import React from 'react';
-import { SidebarNav } from '@/components/dashboard/sidebar';
+import { SidebarNav } from '@/components/common/dashboard/sidebar';
 
 const sidebarNavItems = [
   {
