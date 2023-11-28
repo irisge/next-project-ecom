@@ -22,6 +22,7 @@ const BodyEditSchema = z.object({
     z.custom<File>().refine((file) => ACCEPTED_FILE_TYPES.includes(file.type))
   ),
   fileDescription: z.optional(z.string().max(100)),
+  products: z.optional(z.string().optional()),
 });
 export async function GET(
   request: Request,
@@ -96,6 +97,7 @@ export async function PUT(
       metaDescription: formData.get('metaDescription') || undefined,
       file: formData.get('file') || undefined,
       fileDescription: formData.get('fileDescription') || undefined,
+      products: formData.get('products') || undefined,
     });
 
     // Extract modified fields from the form data
@@ -154,6 +156,20 @@ export async function PUT(
         ],
       };
     }
+    if (parsedData.products) {
+      const products = JSON.parse(parsedData.products);
+
+      updatedCategoryData.products = {
+        create: products.map((product: { label: string; value: string }) => ({
+          assignedAt: new Date(),
+          product: {
+            connect: {
+              id: product['value'],
+            },
+          },
+        })),
+      };
+    }
 
     const updatedCategory = await prisma.category.update({
       where: {
@@ -165,6 +181,7 @@ export async function PUT(
 
     return NextResponse.json({ updatedCategory });
   } catch (e) {
+    console.error(e);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       {

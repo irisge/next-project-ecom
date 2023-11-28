@@ -15,7 +15,7 @@ import {
 import { Category, Product } from '@prisma/client';
 import {
   CategoriesOnProducts,
-  Product as ProductWithCateg,
+  Category as CategoryWithProd,
 } from '@/lib/types/interfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -23,27 +23,27 @@ import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-export function BindToCategory({
+export function BindToProduct({
   itemData,
   target,
   id,
 }: {
-  itemData: Product;
+  itemData: Category;
   target: string;
   id: string;
 }) {
   const router = useRouter();
-  const [categories, setCategories] = useState<
-    Record<'value' | 'label', string>[]
-  >([]);
+  const [products, setProducts] = useState<Record<'value' | 'label', string>[]>(
+    []
+  );
   useEffect(() => {
-    fetch('http://localhost:3000/api/categories')
+    fetch('http://localhost:3000/api/products')
       .then((res) => res.json())
       .then((data) =>
-        setCategories(
-          data.getAllCategories.map((category: Category) => ({
-            label: category.name,
-            value: category.id.toString(),
+        setProducts(
+          data.getAllProducts.map((product: Product) => ({
+            label: product.name,
+            value: product.id.toString(),
           }))
         )
       );
@@ -63,8 +63,8 @@ export function BindToCategory({
     data: EditCategoryFormValues | EditProductFormValues
   ) {
     const formData = new FormData();
-    if (target === 'product' && 'category' in data) {
-      formData.append('categories', JSON.stringify(data.category));
+    if (target === 'category' && 'product' in data) {
+      formData.append('products', JSON.stringify(data.product));
     }
 
     try {
@@ -139,11 +139,11 @@ export function BindToCategory({
   };
 
   const categoryIdBindedToProduct = (
-    itemData as unknown as ProductWithCateg
-  ).categories.map((category: CategoriesOnProducts) => category.categoryId);
+    itemData as unknown as CategoryWithProd
+  ).products.map((product: CategoriesOnProducts) => product.productId);
   const retrieveCategoryNames = categoryIdBindedToProduct.map(
     (elementId: string) => {
-      const foundCategory = categories.find(
+      const foundCategory = products.find(
         (selected) => selected.value === elementId
       );
       return foundCategory ? foundCategory.label : '';
@@ -153,7 +153,7 @@ export function BindToCategory({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-        <h3>Categories related to this product:</h3>
+        <h3>Product(s) related to this category:</h3>
         {retrieveCategoryNames.map((categ: string, i: number) => (
           <Badge key={categoryIdBindedToProduct[i]}>
             {categ}
@@ -165,13 +165,13 @@ export function BindToCategory({
         ))}
         <FormField
           control={form.control}
-          name='category'
+          name='product'
           render={({ field: { ...field } }) => (
             <FormItem className='mb-5'>
-              <FormLabel>Add this product to a new category</FormLabel>
+              <FormLabel>Add some products to this category</FormLabel>
               <MultiSelect
                 selected={field.value || []}
-                options={categories || []}
+                options={products || []}
                 {...field}
               />
             </FormItem>
