@@ -200,6 +200,8 @@ export async function DELETE(
     });
   }
   const product = params.id;
+  console.log('ici');
+  console.log(product);
 
   try {
     const res = await prisma.product.findFirst({
