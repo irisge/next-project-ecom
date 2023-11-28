@@ -7,8 +7,6 @@ import SeoForm from '@/components/common/forms/seoForm';
 import { MainCategoryFormEdit } from '@/components/common/forms/mainEditForm';
 import ImagesForm from '@/components/common/forms/imagesEditForm';
 import { BindToCategory } from '@/components/common/forms/bindToCategory';
-import { Button } from '@/components/ui/button';
-import { ReloadIcon } from '@radix-ui/react-icons';
 import { Product } from '@prisma/client';
 import { Product as ProductWithRelations } from '@/lib/types/interfaces';
 import { ProductAttributesFormEdit } from '@/components/common/forms/productAttributesFormEdit';
@@ -62,14 +60,7 @@ function EditCategoryPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     handleFetchCatagoryData(params['id']);
   }, [params, params.id]);
-  if (!data) {
-    return (
-      <Button disabled>
-        <ReloadIcon className='mr-2 h-4 w-4 animate-spin' />
-        Please wait
-      </Button>
-    );
-  }
+
   return (
     <Card>
       <div className='block space-y-6 p-10 pb-16'>

@@ -42,7 +42,7 @@ export const mainCreateProductFormSchema = z.object({
   ),
   tags: z.array(z.string()).optional(),
   isActive: z.boolean().default(true).optional(),
-  category: z.array(z.record(z.string().trim())),
+  category: z.array(z.record(z.string().trim())).optional(),
 });
 
 export type MainCreateProductFormValues = z.infer<
@@ -57,7 +57,7 @@ export const editProductFormSchema = z.object({
     z.custom<File>().refine((file) => ALLOWED_FILE_TYPES.includes(file?.type))
   ),
   imageDescription: z.string().min(2).max(100).optional(),
-  category: z.array(z.record(z.string().trim())),
+  category: z.array(z.record(z.string().trim())).optional(),
   formats: z
     .array(
       z.object({

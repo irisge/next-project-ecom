@@ -45,12 +45,6 @@ export default function Page({ params }: { params: { id: string } }) {
     handleFetchCategoryData(id);
   }, [id]);
 
-  if (!categoryData) {
-    return <p>wait</p>;
-  }
-
-  console.log(categoryData);
-
   return (
     <>
       {categoryData && (
