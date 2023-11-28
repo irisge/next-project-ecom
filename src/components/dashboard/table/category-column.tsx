@@ -26,5 +26,9 @@ export const columns: ColumnDef<Category>[] = [
   {
     accessorKey: 'products',
     header: 'products',
+    cell: ({ row }) => {
+      const products: any[] = row.getValue('products');
+      return products.length;
+    },
   },
 ];
