@@ -58,6 +58,23 @@ export const editProductFormSchema = z.object({
   ),
   imageDescription: z.string().min(2).max(100).optional(),
   category: z.array(z.record(z.string().trim())),
+  formats: z.array(
+    z.object({
+      value: z.string().min(2, { message: 'Please enter a format size.' }),
+      price: z
+        .preprocess(
+          (a) => parseFloat(z.string().parse(a)),
+          z.number().nonnegative().optional()
+        )
+        .optional(),
+      stock: z
+        .preprocess(
+          (a) => parseInt(z.string().parse(a), 10),
+          z.number().int().nonnegative().optional()
+        )
+        .optional(),
+    })
+  ),
 });
 
 export type EditProductFormValues = z.infer<typeof editProductFormSchema>;

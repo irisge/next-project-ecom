@@ -10,14 +10,12 @@ import { BindToCategory } from '@/components/common/forms/bindToCategory';
 import { Button } from '@/components/ui/button';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { Product } from '@prisma/client';
+import { Product as ProductWithRelations } from '@/lib/types/interfaces';
+import { ProductAttributesFormEdit } from '@/components/common/forms/productAttributesFormEdit';
 
 const sidebarNavItems = [
   {
     title: 'Main',
-    href: 'edit',
-  },
-  {
-    title: 'SEO',
     href: 'edit',
   },
   {
@@ -26,6 +24,14 @@ const sidebarNavItems = [
   },
   {
     title: 'Images',
+    href: 'edit',
+  },
+  {
+    title: 'Price and stock',
+    href: 'edit',
+  },
+  {
+    title: 'SEO',
     href: 'edit',
   },
 ];
@@ -84,6 +90,12 @@ function EditCategoryPage({ params }: { params: { id: string } }) {
                 id={params.id}
                 itemData={data}
                 target='product'
+              />
+            )}
+            {formStep === 'Price and stock' && data && (
+              <ProductAttributesFormEdit
+                id={params.id}
+                itemData={data as unknown as ProductWithRelations}
               />
             )}
             {formStep === 'SEO' && data && (
