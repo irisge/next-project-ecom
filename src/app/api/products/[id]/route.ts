@@ -34,7 +34,19 @@ export async function GET(
       where: {
         id: product,
       },
-      include: { images: true, categories: true, format: true },
+      include: {
+        images: true,
+        categories: {
+          include: {
+            category: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        format: true,
+      },
     });
     if (!res) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });

@@ -13,10 +13,7 @@ import {
   editProductFormSchema,
 } from '@/lib/formValidation/formCreateProduct';
 import { Category, Product } from '@prisma/client';
-import {
-  CategoriesOnProducts,
-  Product as ProductWithCateg,
-} from '@/lib/types/interfaces';
+import { Product as ProductWithCateg } from '@/lib/types/interfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
@@ -111,8 +108,15 @@ export function BindToCategory({
       </Button>
     );
   }
+  console.log(form.formState.errors);
 
-  const handleDelete = async (categoryId: string, productId: string) => {
+  const handleDelete = async ({
+    categoryId,
+    productId,
+  }: {
+    categoryId: string;
+    productId: string;
+  }) => {
     try {
       let url: string;
       if (target === 'category')
@@ -138,31 +142,34 @@ export function BindToCategory({
     }
   };
 
-  const categoryIdBindedToProduct = (
-    itemData as unknown as ProductWithCateg
-  ).categories.map((category: CategoriesOnProducts) => category.categoryId);
-  const retrieveCategoryNames = categoryIdBindedToProduct.map(
-    (elementId: string) => {
-      const foundCategory = categories.find(
-        (selected) => selected.value === elementId
-      );
-      return foundCategory ? foundCategory.label : '';
-    }
-  );
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-        <h3>Categories related to this product:</h3>
-        {retrieveCategoryNames.map((categ: string, i: number) => (
-          <Badge key={categoryIdBindedToProduct[i]}>
-            {categ}
-            <X
-              className='h-4 w-4'
-              onClick={() => handleDelete(categoryIdBindedToProduct[i], id)}
-            />
-          </Badge>
-        ))}
+        <div className='flex w-full flex-col space-y-2'>
+          <h3>Categories related to this product:</h3>
+          <div className='flex w-full space-x-4'>
+            {(itemData as unknown as ProductWithCateg).categories.map(
+              (categ) => (
+                <Badge
+                  key={categ.categoryId}
+                  variant={'secondary'}
+                  className='flex w-max rounded-md px-4 py-2'
+                >
+                  {categ.category.name}
+                  <X
+                    className='h-4 w-4'
+                    onClick={() =>
+                      handleDelete({
+                        categoryId: categ.categoryId,
+                        productId: id,
+                      })
+                    }
+                  />
+                </Badge>
+              )
+            )}
+          </div>
+        </div>
         <FormField
           control={form.control}
           name='category'

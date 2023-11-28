@@ -13,10 +13,7 @@ import {
   editProductFormSchema,
 } from '@/lib/formValidation/formCreateProduct';
 import { Category, Product } from '@prisma/client';
-import {
-  CategoriesOnProducts,
-  Category as CategoryWithProd,
-} from '@/lib/types/interfaces';
+import { Category as CategoryWithProd } from '@/lib/types/interfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
@@ -36,6 +33,7 @@ export function BindToProduct({
   const [products, setProducts] = useState<Record<'value' | 'label', string>[]>(
     []
   );
+
   useEffect(() => {
     fetch('http://localhost:3000/api/products')
       .then((res) => res.json())
@@ -112,7 +110,13 @@ export function BindToProduct({
     );
   }
 
-  const handleDelete = async (categoryId: string, productId: string) => {
+  const handleDelete = async ({
+    categoryId,
+    productId,
+  }: {
+    categoryId: string;
+    productId: string;
+  }) => {
     try {
       let url: string;
       if (target === 'category')
@@ -138,31 +142,32 @@ export function BindToProduct({
     }
   };
 
-  const categoryIdBindedToProduct = (
-    itemData as unknown as CategoryWithProd
-  ).products.map((product: CategoriesOnProducts) => product.productId);
-  const retrieveCategoryNames = categoryIdBindedToProduct.map(
-    (elementId: string) => {
-      const foundCategory = products.find(
-        (selected) => selected.value === elementId
-      );
-      return foundCategory ? foundCategory.label : '';
-    }
-  );
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-        <h3>Product(s) related to this category:</h3>
-        {retrieveCategoryNames.map((categ: string, i: number) => (
-          <Badge key={categoryIdBindedToProduct[i]}>
-            {categ}
-            <X
-              className='h-4 w-4'
-              onClick={() => handleDelete(categoryIdBindedToProduct[i], id)}
-            />
-          </Badge>
-        ))}
+        <div className='flex w-full flex-col space-y-2'>
+          <h3>Product(s) related to this category:</h3>
+          <div className='flex w-full space-x-4'>
+            {(itemData as unknown as CategoryWithProd).products.map((prod) => (
+              <Badge
+                key={prod.productId}
+                variant={'secondary'}
+                className='flex w-max rounded-md px-4 py-2'
+              >
+                {prod.product.name}
+                <X
+                  className='ml-2 h-4 w-4 cursor-pointer'
+                  onClick={() =>
+                    handleDelete({
+                      productId: prod.productId,
+                      categoryId: id,
+                    })
+                  }
+                />
+              </Badge>
+            ))}
+          </div>
+        </div>
         <FormField
           control={form.control}
           name='product'

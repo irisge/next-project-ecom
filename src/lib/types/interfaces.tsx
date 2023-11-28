@@ -5,7 +5,7 @@ export interface Category {
   name: string;
   description: string;
   images: CategoryImage[];
-  products: CategoriesOnProducts[];
+  products: ProductsOnCategories[];
   isActive: boolean;
   metaTitle: string;
   keywords: string;
@@ -29,9 +29,16 @@ export interface ProductImage {
 
 export interface CategoriesOnProducts {
   categoryId: string;
-  category: string;
+  category: { name: string };
   productId: string;
   product: string;
+}
+
+export interface ProductsOnCategories {
+  categoryId: string;
+  category: string;
+  productId: string;
+  product: { name: string };
 }
 
 export interface Product {
