@@ -144,7 +144,17 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const getAllProducts = await prisma.product.findMany({
-      include: { categories: true, images: true },
+      include: {
+        categories: {
+          include: {
+            category: {
+              select: { name: true },
+            },
+          },
+        },
+        images: true,
+        format: true,
+      },
     });
     return NextResponse.json({ getAllProducts });
   } catch (err) {

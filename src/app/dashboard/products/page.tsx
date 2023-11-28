@@ -1,11 +1,11 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Product } from '@prisma/client';
 
 import { Button } from '@/components/ui/button';
 import ProductList from '@/components/dashboard/products/productList';
 import Loading from './loading';
+import { Product } from '@/lib/types/interfaces';
 
 function ProductsPage() {
   const [loading, setLoading] = useState<boolean>(true);

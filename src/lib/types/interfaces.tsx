@@ -45,7 +45,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  status: string;
+  isActive: boolean;
   metaTitle: string;
   keywords: string;
   metaDescription: string;
