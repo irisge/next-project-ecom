@@ -1,3 +1,5 @@
+import { ProductFormat } from '@prisma/client';
+
 export interface Category {
   id: string;
   name: string;
@@ -43,4 +45,5 @@ export interface Product {
   tag: string[];
   categories: CategoriesOnProducts[];
   images: ProductImage[];
+  format: ProductFormat[];
 }

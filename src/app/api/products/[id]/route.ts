@@ -34,7 +34,7 @@ export async function GET(
       where: {
         id: product,
       },
-      include: { images: true, categories: true },
+      include: { images: true, categories: true, format: true },
     });
     if (!res) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
