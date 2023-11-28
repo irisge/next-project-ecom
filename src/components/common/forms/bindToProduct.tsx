@@ -13,34 +13,35 @@ import {
   editProductFormSchema,
 } from '@/lib/formValidation/formCreateProduct';
 import { Category, Product } from '@prisma/client';
-import { Product as ProductWithCateg } from '@/lib/types/interfaces';
+import { Category as CategoryWithProd } from '@/lib/types/interfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-export function BindToCategory({
+export function BindToProduct({
   itemData,
   target,
   id,
 }: {
-  itemData: Product;
+  itemData: Category;
   target: string;
   id: string;
 }) {
   const router = useRouter();
-  const [categories, setCategories] = useState<
-    Record<'value' | 'label', string>[]
-  >([]);
+  const [products, setProducts] = useState<Record<'value' | 'label', string>[]>(
+    []
+  );
+
   useEffect(() => {
-    fetch('http://localhost:3000/api/categories')
+    fetch('http://localhost:3000/api/products')
       .then((res) => res.json())
       .then((data) =>
-        setCategories(
-          data.getAllCategories.map((category: Category) => ({
-            label: category.name,
-            value: category.id.toString(),
+        setProducts(
+          data.getAllProducts.map((product: Product) => ({
+            label: product.name,
+            value: product.id.toString(),
           }))
         )
       );
@@ -60,8 +61,8 @@ export function BindToCategory({
     data: EditCategoryFormValues | EditProductFormValues
   ) {
     const formData = new FormData();
-    if (target === 'product' && 'category' in data) {
-      formData.append('categories', JSON.stringify(data.category));
+    if (target === 'category' && 'product' in data) {
+      formData.append('products', JSON.stringify(data.product));
     }
 
     try {
@@ -108,7 +109,6 @@ export function BindToCategory({
       </Button>
     );
   }
-  console.log(form.formState.errors);
 
   const handleDelete = async ({
     categoryId,
@@ -146,39 +146,37 @@ export function BindToCategory({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
         <div className='flex w-full flex-col space-y-2'>
-          <h3>Categories related to this product:</h3>
+          <h3>Product(s) related to this category:</h3>
           <div className='flex w-full space-x-4'>
-            {(itemData as unknown as ProductWithCateg).categories.map(
-              (categ) => (
-                <Badge
-                  key={categ.categoryId}
-                  variant={'secondary'}
-                  className='flex w-max rounded-md px-4 py-2'
-                >
-                  {categ.category.name}
-                  <X
-                    className='h-4 w-4'
-                    onClick={() =>
-                      handleDelete({
-                        categoryId: categ.categoryId,
-                        productId: id,
-                      })
-                    }
-                  />
-                </Badge>
-              )
-            )}
+            {(itemData as unknown as CategoryWithProd).products.map((prod) => (
+              <Badge
+                key={prod.productId}
+                variant={'secondary'}
+                className='flex w-max rounded-md px-4 py-2'
+              >
+                {prod.product.name}
+                <X
+                  className='ml-2 h-4 w-4 cursor-pointer'
+                  onClick={() =>
+                    handleDelete({
+                      productId: prod.productId,
+                      categoryId: id,
+                    })
+                  }
+                />
+              </Badge>
+            ))}
           </div>
         </div>
         <FormField
           control={form.control}
-          name='category'
+          name='product'
           render={({ field: { ...field } }) => (
             <FormItem className='mb-5'>
-              <FormLabel>Add this product to a new category</FormLabel>
+              <FormLabel>Add some products to this category</FormLabel>
               <MultiSelect
                 selected={field.value || []}
-                options={categories || []}
+                options={products || []}
                 {...field}
               />
             </FormItem>

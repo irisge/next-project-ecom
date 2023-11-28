@@ -10,6 +10,7 @@ import SeoForm from '@/components/common/forms/seoForm';
 import { MainCategoryFormEdit } from '@/components/common/forms/mainEditForm';
 import ImagesForm from '@/components/common/forms/imagesEditForm';
 import { Button } from '@/components/ui/button';
+import { BindToProduct } from '@/components/common/forms/bindToProduct';
 
 const sidebarNavItems = [
   {
@@ -91,6 +92,13 @@ function EditCategoryPage({ params }: { params: { id: string } }) {
             )}
             {formStep === 'SEO' && (
               <SeoForm
+                id={params.id}
+                itemData={categoryData}
+                target={'category'}
+              />
+            )}
+            {formStep === 'Products' && (
+              <BindToProduct
                 id={params.id}
                 itemData={categoryData}
                 target={'category'}

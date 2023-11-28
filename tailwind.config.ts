@@ -72,6 +72,7 @@ module.exports = {
       gridTemplateColumns: {
         cards: 'repeat(auto-fit, minmax(250px, 1fr))',
         side: 'repeat(2, minmax(50px, 1fr))',
+        seo: 'minmax(50px, 150px), minmax(150px, 1fr)',
       },
       gridTemplateRows: {
         cards: 'repeat(auto-fit, minmax(250px, 1fr))',
