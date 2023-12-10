@@ -26,6 +26,16 @@ module.exports = {
       '2xl': '1536px',
       // => @media (min-width: 1536px) { ... }
     },
+    transitionTest: {
+      transitionProperty: {
+        width: 'width',
+        height: 'height',
+      },
+      transitionDelay: {
+        '1500': '1500ms',
+        '2000': '2000ms',
+      },
+    },
     container: {
       center: true,
       padding: '2rem',
