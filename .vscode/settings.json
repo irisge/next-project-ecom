@@ -1,0 +1,19 @@
+{
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false,
+    "eslint.format.enable": true,
+    "files.autoSave": "afterDelay",
+    "[typescript]": { // for .ts files
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[typescriptreact]": { // for .tsx files
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "editor.codeActionsOnSave": { // apply ESLint
+        "source.fixAll.eslint": true
+    }
+}
