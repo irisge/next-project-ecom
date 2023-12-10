@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 // Inspired by react-hot-toast library
 import * as React from "react"
 
